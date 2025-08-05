@@ -17,9 +17,12 @@
 ### Stow Packages
 ```
 ~/dotfiles/
+├── config/        # .config files (flat structure)
+│   ├── hypr/      # Hyprland window manager config
+│   ├── opencode/  # OpenCode configuration
+│   └── wezterm/   # WezTerm terminal config
 ├── git/           # Git configuration (.gitconfig)
-├── hypr/          # Hyprland window manager config
-├── wezterm/       # WezTerm terminal config
+├── prompts/       # Development prompts and documentation
 └── zsh/           # Zsh shell configuration
 ```
 
@@ -74,9 +77,11 @@ git commit -m "description of changes"
 git push
 
 # Apply changes with stow
-stow <package-name>  # e.g., stow zsh hypr wezterm git
+stow -t ~/.config config  # For .config files
+stow zsh git              # For home directory files
 ```
 - Use lowercase commit messages in the dotfiles repo
+- Use single line commits only (no multiline commit messages)
 
 ### Package Management
 - **Bare mode enabled**: `~/.local/state/omarchy/bare.mode` prevents future bloatware
@@ -104,9 +109,10 @@ stow <package-name>  # e.g., stow zsh hypr wezterm git
 ## Commands Reference
 ```bash
 # Stow management
-stow zsh git hypr wezterm    # Apply all dotfiles
-stow -D zsh                  # Remove zsh symlinks
-stow -R zsh                  # Restow (remove + apply)
+stow -t ~/.config config     # Apply .config files
+stow zsh git                 # Apply home directory files
+stow -D config               # Remove config symlinks
+stow -R config               # Restow config (remove + apply)
 
 # System maintenance
 omarchy-update               # Update Omarchy + system packages
@@ -115,7 +121,7 @@ yay -Rns <package>           # Remove package + dependencies + configs
 
 # Dotfiles workflow
 cd ~/dotfiles && git status  # Check dotfiles changes
-git add . && git commit -m "msg" && git push  # Save changes
+git add . && git commit -m "msg" && git push  # Save changes (single line commits only)
 ```
 
 ## Agent Restrictions
