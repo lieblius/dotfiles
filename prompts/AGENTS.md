@@ -76,6 +76,7 @@ git push
 # Apply changes with stow
 stow <package-name>  # e.g., stow zsh hypr wezterm git
 ```
+- Use lowercase commit messages in the dotfiles repo
 
 ### Package Management
 - **Bare mode enabled**: `~/.local/state/omarchy/bare.mode` prevents future bloatware
