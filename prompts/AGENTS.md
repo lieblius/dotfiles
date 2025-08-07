@@ -82,6 +82,7 @@ stow zsh git              # For home directory files
 ```
 - Use lowercase commit messages in the dotfiles repo
 - Use single line commits only (no multiline commit messages)
+- **ABSOLUTELY NEVER multiline commits** - Agent must use single line commit messages only
 - **Stow creates symlinks**: Files in `~/.config/` point to `~/dotfiles/config/`
 - **Edit anywhere**: Changes to symlinked files automatically update dotfiles repo
 
@@ -129,6 +130,7 @@ git add . && git commit -m "msg" && git push  # Save changes (single line commit
 
 ## Agent Restrictions
 - **NEVER use `sudo` commands** - This triggers password prompts and breaks the agent interface
+- **NEVER install packages** - Agent suggests packages but user runs `yay -S` commands
 - **Ask user to run sudo commands manually** if system-level changes are needed
 - **Use `yay` instead of `pacman`** for package management when possible (no sudo required)
 - **Keep notes succinct** - User prefers minimal additions to AGENTS.md
@@ -145,3 +147,4 @@ git add . && git commit -m "msg" && git push  # Save changes (single line commit
 - Clean separation allows both systems to update independently
 - Bare mode prevents future bloatware installations
 - All important configs are version-controlled and portable
+- **Fingerprint auth**: Already configured for sudo, can be used with password managers like `pass`
