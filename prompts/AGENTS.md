@@ -76,12 +76,14 @@ git add .
 git commit -m "description of changes"
 git push
 
-# Apply changes with stow
+# Apply changes with stow (creates symlinks)
 stow -t ~/.config config  # For .config files
 stow zsh git              # For home directory files
 ```
 - Use lowercase commit messages in the dotfiles repo
 - Use single line commits only (no multiline commit messages)
+- **Stow creates symlinks**: Files in `~/.config/` point to `~/dotfiles/config/`
+- **Edit anywhere**: Changes to symlinked files automatically update dotfiles repo
 
 ### Package Management
 - **Bare mode enabled**: `~/.local/state/omarchy/bare.mode` prevents future bloatware
@@ -128,6 +130,7 @@ git add . && git commit -m "msg" && git push  # Save changes (single line commit
 - **NEVER use `sudo` commands** - This triggers password prompts and breaks the agent interface
 - **Ask user to run sudo commands manually** if system-level changes are needed
 - **Use `yay` instead of `pacman`** for package management when possible (no sudo required)
+- **Keep notes succinct** - User prefers minimal additions to AGENTS.md
 
 ## Documentation Access
 - **Omarchy Manual**: Available as desktop app "Omarchy Manual" (opens web version)
