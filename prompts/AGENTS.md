@@ -95,6 +95,7 @@ stow zsh git              # For home directory files
 - **Omarchy defaults**: `~/.local/share/omarchy/` (hands-off, Omarchy-managed)
 - **Personal configs**: `~/.config/` (symlinked via stow)
 - **Omarchy state**: `~/.local/state/omarchy/` (bare.mode file)
+- **AGENTS.md**: `~/AGENTS.md` → `~/dotfiles/prompts/AGENTS.md` (symlinked)
 
 ## Development Workflow
 - **Primary editor**: Neovim (LazyVim, Omarchy-configured)
