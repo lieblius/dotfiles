@@ -19,6 +19,14 @@ export NVM_DIR=~/.nvm
 export BUN_INSTALL="$HOME/.bun"
 export CARGO_REGISTRIES_UNI_CREDENTIAL_PROVIDER=cargo:token
 
+# Privacy & telemetry
+export DISABLE_AUTOUPDATER=1
+export DISABLE_ERROR_REPORTING=1
+export DISABLE_TELEMETRY=1
+
+# Source secrets
+[ -f ~/.zshsecrets ] && source ~/.zshsecrets
+
 # =============================================================================
 # PATH Configuration
 # =============================================================================
@@ -226,6 +234,9 @@ alias fman="compgen -c | fzf | xargs man"
 # =============================================================================
 # Tool Initialization
 # =============================================================================
+
+# Cargo environment
+. "$HOME/.cargo/env"
 
 # Node Version Manager
 source $(brew --prefix nvm)/nvm.sh
