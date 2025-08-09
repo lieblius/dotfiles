@@ -1,49 +1,58 @@
--- Pull in the wezterm API
-local wezterm = require("wezterm")
-local act = wezterm.action -- Alias for wezterm.action
+-- =============================================================================
+-- Wezterm Configuration
+-- =============================================================================
 
--- Initialize the configuration builder
+local wezterm = require("wezterm")
+local act = wezterm.action
 local config = wezterm.config_builder()
 
--- Core Wezterm UI and behavior settings
+-- =============================================================================
+-- Core Configuration
+-- =============================================================================
+
+-- Performance
 config.front_end = "WebGpu"
 config.webgpu_power_preference = "HighPerformance"
+
+-- Appearance
 config.color_scheme = "tokyonight"
 config.font = wezterm.font("JetBrains Mono")
 config.font_size = 20
-config.hide_tab_bar_if_only_one_tab = true
-config.use_fancy_tab_bar = false
-config.native_macos_fullscreen_mode = false
-config.window_close_confirmation = "NeverPrompt"
 config.window_decorations = "RESIZE"
 config.window_background_opacity = 0.99
+
+-- Behavior
+config.window_close_confirmation = "NeverPrompt"
+config.audible_bell = "SystemBeep"
+config.notification_handling = "SuppressFromFocusedPane"
 config.quick_select_patterns = {
 	"git push --set-upstream origin .*",
 }
-config.audible_bell = "SystemBeep"
-config.notification_handling = "SuppressFromFocusedPane"
 
--- Define the leader key for multiplexing commands (Ctrl-a)
+-- Tab Bar
+config.hide_tab_bar_if_only_one_tab = true
+config.use_fancy_tab_bar = false
+config.tab_bar_at_bottom = true
+config.status_update_interval = 1000
+
+-- Multiplexing
 config.leader = {
 	key = "a",
 	mods = "CTRL",
 	timeout_milliseconds = 1000,
 }
-
--- Visual dimming for inactive panes
+config.default_workspace = "main"
 config.inactive_pane_hsb = {
 	saturation = 0.24,
 	brightness = 0.5,
 }
 
--- Set default workspace name
-config.default_workspace = "main"
+config.native_macos_fullscreen_mode = false
 
--- Configure tab bar position and status update interval
-config.tab_bar_at_bottom = true
-config.status_update_interval = 1000
+-- =============================================================================
+-- Visual Configuration
+-- =============================================================================
 
--- Define custom colors for status bar indicators
 local custom_status_colors = {
 	red = "#D06F79",
 	cyan = "#88C0D0",
@@ -51,42 +60,31 @@ local custom_status_colors = {
 	yellow = "#EBCB8B",
 }
 
+-- =============================================================================
 -- Keybindings
-config.keys = {
-	-- Existing general keybindings
-	{
-		key = "w",
-		mods = "CMD",
-		action = act.CloseCurrentPane({ confirm = false }),
-	},
-	{
-		key = "Enter",
-		mods = "SHIFT",
-		action = act.SendString("\x1b[13;2u"),
-	},
+-- =============================================================================
 
-	-- Multiplexing: Send literal Ctrl-a to terminal when Leader + a is pressed
+config.keys = {
+	-- General
+	{ key = "w", mods = "CMD", action = act.CloseCurrentPane({ confirm = false }) },
+	{ key = "Enter", mods = "SHIFT", action = act.SendString("\x1b[13;2u") },
+	{ key = ":", mods = "LEADER", action = act.ActivateCommandPalette },
+	{ key = "R", mods = "LEADER|SHIFT", action = wezterm.action.ReloadConfiguration },
+
+	-- Leader Key Management
 	{ key = "a", mods = "LEADER|CTRL", action = act.SendKey({ key = "a", mods = "CTRL" }) },
 
-	-- Multiplexing: Activate copy mode
+	-- Copy Mode
 	{ key = "[", mods = "LEADER", action = act.ActivateCopyMode },
 
-	-- Activate command palette
-	{ key = ":", mods = "LEADER", action = act.ActivateCommandPalette },
-
-	-- Multiplexing: Show workspace launcher for fuzzy switching
+	-- Workspace Management
 	{ key = "s", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
 
-	-- Multiplexing: Show tab navigator for quick switching
+	-- Tab Management
 	{ key = "w", mods = "LEADER", action = act.ShowTabNavigator },
-	-- Multiplexing: Create a new tab in the current pane's domain
 	{ key = "c", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
-	-- Multiplexing: Activate previous tab
 	{ key = "p", mods = "LEADER", action = act.ActivateTabRelative(-1) },
-	-- Multiplexing: Activate next tab
 	{ key = "n", mods = "LEADER", action = act.ActivateTabRelative(1) },
-
-	-- Multiplexing: Prompt to rename the current tab's title
 	{
 		key = ",",
 		mods = "LEADER",
@@ -103,69 +101,40 @@ config.keys = {
 			end),
 		}),
 	},
-
-	-- Multiplexing: Enter key table for moving tabs
 	{ key = ".", mods = "LEADER", action = act.ActivateKeyTable({ name = "move_tab", one_shot = false }) },
 
-	-- Multiplexing: Split current pane vertically
+	-- Pane Management
 	{ key = '"', mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-	-- Multiplexing: Split current pane horizontally
 	{ key = "%", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-
-	-- Multiplexing: Activate pane in specified direction (Left)
 	{ key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
-	-- Multiplexing: Activate pane in specified direction (Down)
 	{ key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
-	-- Multiplexing: Activate pane in specified direction (Up)
 	{ key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
-	-- Multiplexing: Activate pane in specified direction (Right)
 	{ key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
-	-- Multiplexing: Rotate panes clockwise within the current split
 	{ key = "phys:Space", mods = "LEADER", action = act.RotatePanes("Clockwise") },
-
-	-- Multiplexing: Toggle zoom state of the current pane
 	{ key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
-	-- Multiplexing: Close the current pane with confirmation
 	{ key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
-
-	-- Multiplexing: Move the current pane to a new tab (and new window if only tab)
+	{ key = "r", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
 	{
 		key = "!",
 		mods = "LEADER | SHIFT",
 		action = wezterm.action_callback(function(win, pane)
-			local tab, window = pane:move_to_new_tab()
+			pane:move_to_new_tab()
 		end),
 	},
 
-	-- Multiplexing: Enter key table for resizing panes
-	{ key = "r", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
-
-	-- Multiplexing: Detach from the current multiplexer domain
-	{
-		key = "d",
-		mods = "LEADER",
-		action = wezterm.action.DetachDomain("CurrentPaneDomain"), -- Corrected action
-	},
-
-	-- Reload Wezterm configuration
-	{
-		key = "R",
-		mods = "LEADER|SHIFT",
-		action = wezterm.action.ReloadConfiguration,
-	},
-
-	-- Open multiplexing cheatsheet
+	-- System
+	{ key = "d", mods = "LEADER", action = wezterm.action.DetachDomain("CurrentPaneDomain") },
 	{
 		key = "?",
 		mods = "LEADER",
 		action = act.SplitVertical({
 			domain = "CurrentPaneDomain",
-			args = { "nvim", "/Users/liebl/.config/wezterm/wezterm-multiplexing.txt" },
+			args = { "nvim", wezterm.config_dir .. "/wezterm-multiplexing.txt" },
 		}),
 	},
 }
 
--- Multiplexing: Bind Leader + number to activate tabs by index (0-based)
+-- Tab Number Bindings
 for i = 1, 9 do
 	table.insert(config.keys, {
 		key = tostring(i),
@@ -174,7 +143,9 @@ for i = 1, 9 do
 	})
 end
 
--- Define key tables for modal actions
+-- =============================================================================
+-- Key Tables
+-- =============================================================================
 config.key_tables = {
 	-- Key table for resizing panes
 	resize_pane = {
@@ -196,7 +167,9 @@ config.key_tables = {
 	},
 }
 
--- Status bar customization for multiplexing-related information
+-- =============================================================================
+-- Event Handlers
+-- =============================================================================
 wezterm.on("update-status", function(window, pane)
 	local status_text = window:active_workspace()
 	local status_color = custom_status_colors.red
