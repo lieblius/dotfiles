@@ -64,3 +64,37 @@ We're systematically going through my existing configurations, analyzing and opt
 
 **End Goal:**
 A clean, organized, version-controlled dotfiles system where I can quickly set up my development environment on any new machine with a simple `git clone` and `stow` commands, while keeping sensitive work configurations separate and secure.
+
+## Recurring Maintenance Tasks
+
+### Config File Organization
+When asked to "check" a config file (e.g., "check the zshrc", "check my wezterm config") without additional context, this is a recurring maintenance request. The standard workflow is:
+
+1. **Check git diff** to identify recent additions made hastily
+   ```bash
+   git diff <path/to/config/file>
+   ```
+
+2. **Read the original file structure** to understand the existing organization patterns before changes
+   ```bash
+   git show HEAD:<path/to/config/file>
+   ```
+   Or if changes are staged:
+   ```bash
+   git show :<path/to/config/file>
+   ```
+
+3. **Analyze the file's organization** by identifying:
+   - Section headers and their naming conventions
+   - Grouping patterns (by functionality, alphabetical, etc.)
+   - Comment styles and documentation patterns
+   - Indentation and formatting conventions
+
+4. **Reorganize additions** to match the file's existing structure:
+   - Move items to their semantically appropriate sections
+   - Maintain consistent ordering within sections
+   - Follow existing naming and formatting conventions
+
+5. **Optimize** any redundant or inefficient patterns while preserving functionality
+
+This is an ongoing process as configurations are frequently updated during daily work without careful consideration of organization. The goal is to maintain clean, well-organized config files that follow their own established patterns.

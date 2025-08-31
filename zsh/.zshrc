@@ -15,6 +15,7 @@ export CONFIG=$HOME/.config/
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
 export EDITOR=nvim
+export BROWSER=comet
 export NVM_DIR=~/.nvm
 export BUN_INSTALL="$HOME/.bun"
 export CARGO_REGISTRIES_UNI_CREDENTIAL_PROVIDER=cargo:token
@@ -31,12 +32,12 @@ export DISABLE_TELEMETRY=1
 # PATH Configuration
 # =============================================================================
 
+export PATH="$HOME/.local/bin:$PATH"
 export PATH="${PATH}:/Users/liebl/Library/Python/3.12/lib/python/site-packages"
 export PATH="/Applications/PyCharm.app/Contents/MacOS:$PATH"
 export PATH="$PATH:/Users/liebl/.cache/lm-studio/bin"
 export PATH="$PATH:/Users/liebl/.cloudypad/bin"
 export PATH="/Users/liebl/.codeium/windsurf/bin:$PATH"
-export PATH="$PATH:/Users/liebl/.local/bin"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # =============================================================================
@@ -76,6 +77,8 @@ alias gbd='git branch | fzf | xargs git branch -D'
 alias gdiff='git diff --no-index'
 alias gdc='git diff --cached'
 alias gstf='git status --porcelain | grep -v "^??" | cut -c 4-'
+alias gstfpy='gstf | grep "\.py$"'
+alias gfmt='uvx ruff format $(gstfpy) && uvx ruff check --fix --unsafe-fixes $(gstfpy)'
 
 # Git skip-worktree
 alias gsidx='git ls-files -v | grep "^S" | cut -c 3-'
@@ -215,6 +218,27 @@ cho() {
 
   echo "Opening latest file in Obsidian: $latest_file"
   obsidian "$latest_file"
+}
+
+catdelim() {
+  local dir="$1"
+  local outfile="$2"
+
+  if [[ -z "$dir" ]]; then
+    echo "Usage: catdelim <directory> [outfile]"
+    return 1
+  fi
+
+  if [[ -n "$outfile" ]]; then
+    exec > "$outfile"
+  fi
+
+  for f in "$dir"/*; do
+    [[ -f "$f" ]] || continue
+    echo "---- ${f##*/} ----"
+    cat "$f"
+    echo
+  done
 }
 
 # =============================================================================
