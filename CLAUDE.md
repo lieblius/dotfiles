@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository manages my personal macOS configuration using GNU Stow for symlink-based dotfiles management. The setup is designed to separate universal configurations (suitable for syncing) from work-specific/sensitive configurations (kept local only).
+This repository manages my personal macOS configuration using GNU Stow for symlink-based dotfiles management. The setup is designed to separate universal configurations (suitable for syncing) from work-specific/sensitive configurations (kept local only). If you are reading this it is because you are either currently sitting in the dotfiles repository at ~/dotfiles/, or in the home directory itself (in this case, this file would be symlinked there). Start by identifying where you are. The branch you are on will also help you identify which os you are on.
 
 ## Repository Structure
 
