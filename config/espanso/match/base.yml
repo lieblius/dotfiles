@@ -1,0 +1,3 @@
+#matches:
+#  - regex: "(?i)\\w*[dD][o0O][nN][uU][tT7+]+\\w*"
+#    replace: "nothing tomorrow! Nice try."

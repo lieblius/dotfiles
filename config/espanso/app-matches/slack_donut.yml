@@ -1,0 +1,27 @@
+matches:
+  - regex: "(?i)d[\\W_]*o?[\\W_]*n[\\W_]*u?[\\W_]*t[\\W_]*[sz\\+]?"
+    replace: "more like do-NOT!"
+
+  # 1) “Bring anything” blocker (same as before)
+  - regex: "(?i)\\b(?:bring|brings|bringing|tomorrow.*bring|i(?:'ll| will| am bringing))\\b"
+    replace: "🚫 Sorry, I don’t bring anything!"
+
+  # 2) English “donut” or “doughnut” (all variants/leetspeak)
+  - regex: "(?i)\\w*[dD](?:ough)?[nN][uU][tT7\\+]+s?\\w*"
+    replace: "more like do-NOT!"
+
+  # 3) Spanish “rosquilla” or “donas”
+  - regex: "(?i)\\w*(?:[rR][oO][sS][qQ][uU][iI][lL]{2}[aA]|[dD][o0O][nN][aA])s?\\w*"
+    replace: "more like do-NOT!"
+
+  # 4) Polish “pączek” or “pączki” (ASCII fallback “paczek”/“paczki”)
+  - regex: "(?i)\\w*(?:[pP][aąAĄ][cC][zZ][eE][kK]|[pP][aąAĄ][cC][zZ][kK][iI])s?\\w*"
+    replace: "more like do-NOT!"
+
+  # 5) French “beignet”
+  - regex: "(?i)\\w*[bB][eE][iI][gG][nN][eE][tT]s?\\w*"
+    replace: "more like do-NOT!"
+
+  # 6) German “Krapfen”
+  - regex: "(?i)\\w*[kK][rR][aA][pP][fF][eE][nN]s?\\w*"
+    replace: "more like do-NOT!"

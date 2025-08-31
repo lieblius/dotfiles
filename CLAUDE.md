@@ -16,8 +16,10 @@ Each application/tool gets its own "package" directory that mirrors the target f
 
 - `zsh/` → Contains `.zshrc` that stows to `~/.zshrc`
 - `wezterm/` → Contains `.wezterm.lua` that stows to `~/.wezterm.lua`
-- `config/` → (Planned) Contains files that stow to `~/.config/`
+- `config/` → Contains subdirs that stow to `~/.config/` (use: `stow --target=$HOME/.config config`)
 - `git/` → (Planned) Contains sanitized `.gitconfig`
+
+**Important:** For the `config/` package, always use `stow --target=$HOME/.config config` to ensure symlinks are created in `~/.config/` not in `~`
 
 ## Configuration Philosophy
 

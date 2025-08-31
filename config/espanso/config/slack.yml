@@ -1,0 +1,5 @@
+filter_class: "com.tinyspeck.slackmacgap"
+filter_title: "boston-office"
+
+extra_includes:
+  - "../app-matches/slack_donut.yml"
