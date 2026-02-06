@@ -107,7 +107,7 @@ alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Chrome|Linear|Slack'
+if.app-name-regex-substring = 'Chrome|Linear|Slack|Comet'
 run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
@@ -115,6 +115,14 @@ if.app-name-regex-substring = 'PyCharm'
 run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Obsidian'
+if.app-name-regex-substring = 'Zoom'
+run = 'move-node-to-workspace 5'
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Messages'
+run = 'move-node-to-workspace 9'
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Obsidian|Notion|Typora'
 run = 'move-node-to-workspace 10'
 

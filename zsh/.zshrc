@@ -77,7 +77,7 @@ alias gbd='git branch | fzf | xargs git branch -D'
 alias gdiff='git diff --no-index'
 alias gdc='git diff --cached'
 alias gstf='git status --porcelain | grep -v "^??" | cut -c 4-'
-alias gstfpy='gstf | grep "\.py$"'
+alias gstfpy='git status --porcelain | grep -v "^??" | grep -v "^D" | cut -c 4- | grep "\.py$"'
 alias gfmt='uvx ruff format $(gstfpy) && uvx ruff check --fix --unsafe-fixes $(gstfpy)'
 
 # Git skip-worktree
