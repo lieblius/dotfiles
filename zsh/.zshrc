@@ -19,6 +19,7 @@ export BROWSER=comet
 export NVM_DIR=~/.nvm
 export BUN_INSTALL="$HOME/.bun"
 export CARGO_REGISTRIES_UNI_CREDENTIAL_PROVIDER=cargo:token
+export LINEAR_ISSUE_SORT=priority
 
 # Privacy & telemetry
 export DISABLE_AUTOUPDATER=1
@@ -27,6 +28,9 @@ export DISABLE_TELEMETRY=1
 
 # Source secrets
 [ -f ~/.zshsecrets ] && source ~/.zshsecrets
+
+# CodeArtifact environment variables
+[ -f ~/.config/codeartifact-auth-manager/env.sh ] && source ~/.config/codeartifact-auth-manager/env.sh
 
 # =============================================================================
 # PATH Configuration
@@ -39,6 +43,7 @@ export PATH="$PATH:/Users/liebl/.cache/lm-studio/bin"
 export PATH="$PATH:/Users/liebl/.cloudypad/bin"
 export PATH="/Users/liebl/.codeium/windsurf/bin:$PATH"
 export PATH="$BUN_INSTALL/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 
 # =============================================================================
 # Prompt Setup
@@ -77,7 +82,7 @@ alias gbd='git branch | fzf | xargs git branch -D'
 alias gdiff='git diff --no-index'
 alias gdc='git diff --cached'
 alias gstf='git status --porcelain | grep -v "^??" | cut -c 4-'
-alias gstfpy='git status --porcelain | grep -v "^??" | grep -v "^D" | cut -c 4- | grep "\.py$"'
+alias gstfpy='git status --porcelain | grep "\.py$" | grep -v "^D " | grep -v "^ D" | cut -c 4-'
 alias gfmt='uvx ruff format $(gstfpy) && uvx ruff check --fix --unsafe-fixes $(gstfpy)'
 
 # Git skip-worktree
@@ -96,14 +101,25 @@ alias openbb="/Users/liebl/Documents/tools/openbb-terminal/openbb.sh"
 alias ups="uv pip sync requirements.txt"
 alias uv311="uv venv --python /opt/homebrew/opt/python@3.11/bin/python3.11"
 alias pfloki='kubectl port-forward svc/loki-gateway 3100:80 -n loki'
-alias claude="/Users/liebl/.claude/local/claude"
+alias mcp='npx mcpick'
 alias skopy='echo "AWS Profile: $(aws configure get sso_account_id --profile artifacts 2>/dev/null || echo "Not authenticated")" && aws sts get-caller-identity --profile artifacts >/dev/null 2>&1 && echo "AWS authenticated" || (echo "AWS not authenticated - run: aws sso login --profile artifacts" && exit 1) && uv run /Users/liebl/Documents/tools/skopy/skopy'
+#alias slurp="$HOME/Documents/docs/slurp.sh"
+alias ca-auth="$HOME/.config/codeartifact-auth-manager/manager.py refresh && source $HOME/.config/codeartifact-auth-manager/env.sh"
+alias ca-status="$HOME/.config/codeartifact-auth-manager/manager.py status"
 
 # =============================================================================
 # Functions
 # =============================================================================
 
 # Git Functions
+gwr() {
+  git worktree list | tail -n +2 | fzf --height=10 | while read -r line; do
+    local wt_path=$(echo $line | awk '{print $1}')
+    local branch=$(echo $line | awk '{print $3}' | tr -d '[]')
+    git worktree remove "$wt_path" --force && git branch -D "$branch"
+  done
+}
+
 glidx() {
     SKIPPED_FILES=$(git ls-files -v | grep "^S" | cut -c 3-)
     if [ -z "$SKIPPED_FILES" ]; then
@@ -248,10 +264,13 @@ catdelim() {
 eval "$(fzf --zsh)"
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git "
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+export FZF_CTRL_F_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
 export FZF_DEFAULT_OPTS="--height 50% --layout=default --border --color=hl:#2dd4bf"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always -n --line-range :500 {}'"
-export FZF_ALT_C_OPTS="--preview 'eza --icons=always --tree --color=always {} | head -200'"
+export FZF_CTRL_F_OPTS="--preview 'eza --icons=always --tree --color=always {} | head -200'"
+
+# Bind Ctrl+F to FZF directory search (instead of default Alt+C)
+bindkey '^F' fzf-cd-widget
 export FZF_TMUX_OPTS=" -p90%,70% "
 alias fman="compgen -c | fzf | xargs man"
 
@@ -270,3 +289,15 @@ eval "$(zoxide init zsh)"
 
 # Bun completions
 [ -s "/Users/liebl/.bun/_bun" ] && source "/Users/liebl/.bun/_bun"
+
+# opencode
+export PATH=/Users/liebl/.opencode/bin:$PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# Added by Antigravity
+export PATH="/Users/liebl/.antigravity/antigravity/bin:$PATH"
+
+# OpenCode: patched build -- disable auto-update and raise tool output limits
+export OPENCODE_DISABLE_AUTOUPDATE=true
+export OPENCODE_MAX_TOOL_OUTPUT_BYTES=3145728
+export OPENCODE_MAX_TOOL_OUTPUT_LINES=100000
