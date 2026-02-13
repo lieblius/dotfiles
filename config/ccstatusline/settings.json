@@ -5,34 +5,55 @@
       {
         "id": "1",
         "type": "model",
-        "color": "cyan"
+        "color": "",
+        "rawValue": true
       },
       {
-        "id": "2",
-        "type": "separator"
-      },
-      {
-        "id": "3",
-        "type": "context-length",
-        "color": "brightBlack"
-      },
-      {
-        "id": "4",
+        "id": "87baa1f6-e04b-4c9c-a119-40209364182d",
         "type": "separator"
       },
       {
         "id": "5",
         "type": "git-branch",
-        "color": "magenta"
+        "color": ""
       },
       {
-        "id": "6",
+        "id": "cd32514e-03c8-4b06-9890-49a3c4e63351",
         "type": "separator"
       },
       {
-        "id": "7",
-        "type": "git-changes",
-        "color": "yellow"
+        "id": "0587068d-1acc-46b4-a74f-72a6f0f9db12",
+        "type": "session-clock",
+        "color": ""
+      },
+      {
+        "id": "898017b8-262b-47b9-b5a2-ecb5daa764ab",
+        "type": "separator"
+      },
+      {
+        "id": "ca49343c-69b9-4fdf-9230-8d45c7135ed2",
+        "type": "session-cost",
+        "color": ""
+      },
+      {
+        "id": "e07bf090-b500-4c79-bc34-d5f5ee23cd19",
+        "type": "separator"
+      },
+      {
+        "id": "92c851ff-af20-4842-b550-7a3ed9e60ef1",
+        "type": "context-length",
+        "rawValue": true,
+        "color": ""
+      },
+      {
+        "id": "e419b437-fc3b-4f86-9c42-9a2a614537ee",
+        "type": "separator"
+      },
+      {
+        "id": "e5821918-5b25-4461-aa5f-57ab080682cf",
+        "type": "context-percentage",
+        "rawValue": true,
+        "color": ""
       }
     ]
   ],
@@ -50,6 +71,9 @@
       false
     ],
     "startCaps": [],
-    "endCaps": []
-  }
+    "endCaps": [],
+    "autoAlign": false,
+    "theme": "nord-aurora"
+  },
+  "defaultPadding": " "
 }
