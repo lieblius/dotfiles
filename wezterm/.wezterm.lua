@@ -5,6 +5,7 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
+local resurrect = wezterm.plugin.require("https://github.com/MLFlexer/resurrect.wezterm")
 
 -- =============================================================================
 -- Core Configuration
@@ -17,7 +18,7 @@ config.webgpu_power_preference = "HighPerformance"
 -- Appearance
 config.color_scheme = "tokyonight"
 config.font = wezterm.font("JetBrains Mono")
-config.font_size = 20
+config.font_size = os.getenv("WEZTERM_ORACLE") == "1" and 13 or 20
 config.window_decorations = "RESIZE"
 config.window_background_opacity = 0.99
 
@@ -27,6 +28,7 @@ config.audible_bell = "SystemBeep"
 config.notification_handling = "SuppressFromFocusedPane"
 config.quick_select_patterns = {
 	"git push --set-upstream origin .*",
+	"claude --resume [0-9a-f-]+",
 }
 
 -- Tab Bar
@@ -67,7 +69,7 @@ local custom_status_colors = {
 config.keys = {
 	-- General
 	{ key = "w", mods = "CMD", action = act.CloseCurrentPane({ confirm = false }) },
-	{ key = "Enter", mods = "SHIFT", action = act.SendString("\x1b[13;2u") },
+	{ key = "Enter", mods = "SHIFT", action = act.SendString("\x1b\r") },
 	{ key = ":", mods = "LEADER", action = act.ActivateCommandPalette },
 	{ key = "R", mods = "LEADER|SHIFT", action = wezterm.action.ReloadConfiguration },
 
@@ -104,14 +106,19 @@ config.keys = {
 	{ key = ".", mods = "LEADER", action = act.ActivateKeyTable({ name = "move_tab", one_shot = false }) },
 
 	-- Pane Management
-	{ key = '"', mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-	{ key = "%", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
-	{ key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
-	{ key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
-	{ key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
-	{ key = "phys:Space", mods = "LEADER", action = act.RotatePanes("Clockwise") },
-	{ key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+	-- CMD+H requires overriding macOS "Hide" shortcut via defaults write:
+	--   defaults write com.github.wez.wezterm NSUserKeyEquivalents -dict-add "Hide WezTerm" -string '~^$\U00a7'
+	--   defaults write com.apple.universalaccess com.apple.custommenu.apps -array-add "com.github.wez.wezterm"
+	--   killall cfprefsd && restart WezTerm
+	{ key = "h", mods = "CMD", action = act.ActivatePaneDirection("Left") },
+	{ key = "j", mods = "CMD", action = act.ActivatePaneDirection("Down") },
+	{ key = "k", mods = "CMD", action = act.ActivatePaneDirection("Up") },
+	{ key = "l", mods = "CMD", action = act.ActivatePaneDirection("Right") },
+	{ key = "h", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Left" }) },
+	{ key = "j", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Down" }) },
+	{ key = "k", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Up" }) },
+	{ key = "l", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Right" }) },
+	{ key = ";", mods = "CMD", action = act.TogglePaneZoomState },
 	{ key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
 	{ key = "r", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
 	{
@@ -119,6 +126,38 @@ config.keys = {
 		mods = "LEADER | SHIFT",
 		action = wezterm.action_callback(function(win, pane)
 			pane:move_to_new_tab()
+		end),
+	},
+
+	-- Session Management
+	{
+		key = "s",
+		mods = "CMD",
+		action = wezterm.action_callback(function(win, pane)
+			resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
+		end),
+	},
+	{
+		key = "r",
+		mods = "CMD",
+		action = wezterm.action_callback(function(win, pane)
+			resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, label)
+				local type = string.match(id, "^([^/]+)")
+				id = string.match(id, "([^/]+)$")
+				id = string.match(id, "(.+)%..+$")
+				local opts = {
+					relative = true,
+					restore_text = true,
+					on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+				}
+				if type == "workspace" then
+					local state = resurrect.state_manager.load_state(id, "workspace")
+					resurrect.workspace_state.restore_workspace(state, opts)
+				elseif type == "window" then
+					local state = resurrect.state_manager.load_state(id, "window")
+					resurrect.window_state.restore_window(pane:window(), state, opts)
+				end
+			end)
 		end),
 	},
 
@@ -168,6 +207,21 @@ config.key_tables = {
 }
 
 -- =============================================================================
+-- Oracle Panel Support
+-- =============================================================================
+-- When launched with WEZTERM_ORACLE=1, sizes the window for the left gutter.
+-- Normal launches pass through unchanged.
+
+wezterm.on("gui-startup", function(cmd)
+	local mux = wezterm.mux
+	local tab, pane, window = mux.spawn_window(cmd or {})
+	if os.getenv("WEZTERM_ORACLE") == "1" then
+		window:gui_window():set_inner_size(440, 1100)
+		window:gui_window():set_position(0, 30)
+	end
+end)
+
+-- =============================================================================
 -- Event Handlers
 -- =============================================================================
 wezterm.on("update-status", function(window, pane)
@@ -198,6 +252,16 @@ wezterm.on("update-status", function(window, pane)
 		{ Text = "  " },
 	}))
 end)
+
+-- =============================================================================
+-- Session Management (resurrect.wezterm)
+-- =============================================================================
+resurrect.state_manager.periodic_save({
+	interval_seconds = 300,
+	save_workspaces = true,
+	save_windows = true,
+	save_tabs = true,
+})
 
 -- Return the configured object
 return config
