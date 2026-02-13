@@ -9,7 +9,7 @@ after-startup-command = [
 ]
 
 exec-on-workspace-change = ['/bin/bash', '-c',
-    '/opt/homebrew/opt/sketchybar/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
+    '/opt/homebrew/opt/sketchybar/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE; $HOME/.config/aerospace/oracle-follow.sh'
 ]
 
 enable-normalization-flatten-containers = true
@@ -37,8 +37,10 @@ cmd-h = []
 alt-enter = 'exec-and-forget open -n /Applications/Terminal.app'
 alt-backslash = 'exec-and-forget open -n /Applications/Chrome\ ASI.app'
 alt-shift-equal = 'exec-and-forget $HOME/.config/aerospace/toggle_gap'
+alt-o = 'exec-and-forget $HOME/.config/aerospace/oracle-toggle.sh'
+alt-shift-o = 'exec-and-forget $HOME/.config/aerospace/oracle-zoom.sh'
 
-alt-h = 'focus left'
+alt-h = 'focus --ignore-floating left'
 alt-j = 'focus down'
 alt-k = 'focus up'
 alt-l = 'focus right'
@@ -105,6 +107,18 @@ alt-shift-h = ['join-with left', 'mode main']
 alt-shift-j = ['join-with down', 'mode main']
 alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
+
+# =============================================================================
+# Oracle Panel
+# =============================================================================
+
+[[on-window-detected]]
+if.window-title-regex-substring = 'oracle'
+run = 'layout floating'
+
+# =============================================================================
+# Window Rules
+# =============================================================================
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Chrome|Linear|Slack|Comet'
