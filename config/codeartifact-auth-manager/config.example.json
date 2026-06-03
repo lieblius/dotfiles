@@ -1,0 +1,8 @@
+{
+  "CA_DOMAIN": "your-codeartifact-domain",
+  "CA_DOMAIN_OWNER": "000000000000",
+  "CA_REPOSITORY": "your-codeartifact-repo",
+  "CA_REGION": "us-east-2",
+  "CA_SSO_PROFILE": "dev",
+  "CA_ARTIFACTS_PROFILE": "artifacts"
+}
