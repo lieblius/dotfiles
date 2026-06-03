@@ -14,6 +14,7 @@ local resurrect = wezterm.plugin.require("https://github.com/MLFlexer/resurrect.
 -- Performance
 config.front_end = "WebGpu"
 config.webgpu_power_preference = "HighPerformance"
+config.enable_kitty_graphics = true
 
 -- Appearance
 config.color_scheme = "tokyonight"
@@ -28,7 +29,9 @@ config.audible_bell = "SystemBeep"
 config.notification_handling = "SuppressFromFocusedPane"
 config.quick_select_patterns = {
 	"git push --set-upstream origin .*",
-	"claude --resume [0-9a-f-]+",
+	'claude --resume [0-9a-f-]+',
+	'claude --resume "[%w_-]+"',
+	"/[a-zA-Z][a-zA-Z0-9_:-]+ \\S+",
 }
 
 -- Tab Bar
@@ -111,6 +114,7 @@ config.keys = {
 	--   defaults write com.apple.universalaccess com.apple.custommenu.apps -array-add "com.github.wez.wezterm"
 	--   killall cfprefsd && restart WezTerm
 	{ key = "h", mods = "CMD", action = act.ActivatePaneDirection("Left") },
+	{ key = "g", mods = "CMD", action = act.ActivatePaneDirection("Left") },
 	{ key = "j", mods = "CMD", action = act.ActivatePaneDirection("Down") },
 	{ key = "k", mods = "CMD", action = act.ActivatePaneDirection("Up") },
 	{ key = "l", mods = "CMD", action = act.ActivatePaneDirection("Right") },
@@ -118,6 +122,10 @@ config.keys = {
 	{ key = "j", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Down" }) },
 	{ key = "k", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Up" }) },
 	{ key = "l", mods = "CMD|SHIFT", action = act.SplitPane({ direction = "Right" }) },
+	{ key = "h", mods = "CMD|CTRL", action = act.SplitPane({ direction = "Left", top_level = true }) },
+	{ key = "j", mods = "CMD|CTRL", action = act.SplitPane({ direction = "Down", top_level = true }) },
+	{ key = "k", mods = "CMD|CTRL", action = act.SplitPane({ direction = "Up", top_level = true }) },
+	{ key = "l", mods = "CMD|CTRL", action = act.SplitPane({ direction = "Right", top_level = true }) },
 	{ key = ";", mods = "CMD", action = act.TogglePaneZoomState },
 	{ key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
 	{ key = "r", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },

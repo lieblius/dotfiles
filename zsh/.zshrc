@@ -15,19 +15,19 @@ export CONFIG=$HOME/.config/
 export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
 export EDITOR=nvim
-export BROWSER=comet
-export NVM_DIR=~/.nvm
+export BROWSER=open
 export BUN_INSTALL="$HOME/.bun"
-export CARGO_REGISTRIES_UNI_CREDENTIAL_PROVIDER=cargo:token
 export LINEAR_ISSUE_SORT=priority
+export TELEPORT_TOOLS_VERSION=off
 
 # Privacy & telemetry
-export DISABLE_AUTOUPDATER=1
 export DISABLE_ERROR_REPORTING=1
-export DISABLE_TELEMETRY=1
 
 # Source secrets
 [ -f ~/.zshsecrets ] && source ~/.zshsecrets
+
+# Expose API keys to macOS GUI apps (Electron, etc.)
+launchctl setenv ANTHROPIC_API_KEY "$ANTHROPIC_API_KEY" 2>/dev/null
 
 # CodeArtifact environment variables
 [ -f ~/.config/codeartifact-auth-manager/env.sh ] && source ~/.config/codeartifact-auth-manager/env.sh
@@ -77,6 +77,8 @@ alias a='nvim ~/.config/aerospace/aerospace.toml'
 alias w='nvim ~/.wezterm.lua'
 
 # Git
+alias gprw='gh pr view --web'
+alias ghb='gh browse'
 alias gbi='git branch | fzf | xargs git checkout'
 alias gbd='git branch | fzf | xargs git branch -D'
 alias gdiff='git diff --no-index'
@@ -84,6 +86,7 @@ alias gdc='git diff --cached'
 alias gstf='git status --porcelain | grep -v "^??" | cut -c 4-'
 alias gstfpy='git status --porcelain | grep "\.py$" | grep -v "^D " | grep -v "^ D" | cut -c 4-'
 alias gfmt='uvx ruff format $(gstfpy) && uvx ruff check --fix --unsafe-fixes $(gstfpy)'
+alias gcamai='gcai -a'
 
 # Git skip-worktree
 alias gsidx='git ls-files -v | grep "^S" | cut -c 3-'
@@ -281,11 +284,12 @@ alias fman="compgen -c | fzf | xargs man"
 # Cargo environment
 . "$HOME/.cargo/env"
 
-# Node Version Manager
-source $(brew --prefix nvm)/nvm.sh
 
 # Zoxide (better cd)
 eval "$(zoxide init zsh)"
+
+# mise (runtime & env management)
+eval "$(mise activate zsh)"
 
 # Bun completions
 [ -s "/Users/liebl/.bun/_bun" ] && source "/Users/liebl/.bun/_bun"
@@ -301,3 +305,11 @@ export PATH="/Users/liebl/.antigravity/antigravity/bin:$PATH"
 export OPENCODE_DISABLE_AUTOUPDATE=true
 export OPENCODE_MAX_TOOL_OUTPUT_BYTES=3145728
 export OPENCODE_MAX_TOOL_OUTPUT_LINES=100000
+
+# pnpm
+export PNPM_HOME="/Users/liebl/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
