@@ -1,5 +1,4 @@
 # CodeArtifact auth manager - local, machine-specific, contains credentials/identifiers
 config/codeartifact-auth-manager/config.json
-config/codeartifact-auth-manager/env.sh
 config/codeartifact-auth-manager/state.json
 config/codeartifact-auth-manager/__pycache__/

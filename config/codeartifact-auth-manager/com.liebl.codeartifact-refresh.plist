@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.liebl.codeartifact-refresh</string>
+
+    <!-- Refresh the 12h CodeArtifact token via the existing SSO session.
+         Browser-free; if the SSO session itself has expired, manager.py posts a
+         notification and leaves the menu bar item empty for a manual sign-in. -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/liebl/.local/bin/uv</string>
+        <string>run</string>
+        <string>--quiet</string>
+        <string>--script</string>
+        <string>/Users/liebl/.config/codeartifact-auth-manager/manager.py</string>
+        <string>auto</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/Users/liebl/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin</string>
+    </dict>
+
+    <!-- 09:00 and 21:00 daily. A run missed while asleep fires on wake. -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key><integer>9</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>21</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+    </array>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.liebl.codeartifact-refresh.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.liebl.codeartifact-refresh.stderr.log</string>
+</dict>
+</plist>

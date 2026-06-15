@@ -29,8 +29,8 @@ export DISABLE_ERROR_REPORTING=1
 # Expose API keys to macOS GUI apps (Electron, etc.)
 launchctl setenv ANTHROPIC_API_KEY "$ANTHROPIC_API_KEY" 2>/dev/null
 
-# CodeArtifact environment variables
-[ -f ~/.config/codeartifact-auth-manager/env.sh ] && source ~/.config/codeartifact-auth-manager/env.sh
+# CodeArtifact creds live in per-tool config files (~/.netrc, pip.conf, uv.toml,
+# ~/.cargo), refreshed by codeartifact-auth-manager. Nothing to source here.
 
 # =============================================================================
 # PATH Configuration
@@ -107,7 +107,7 @@ alias pfloki='kubectl port-forward svc/loki-gateway 3100:80 -n loki'
 alias mcp='npx mcpick'
 alias skopy='echo "AWS Profile: $(aws configure get sso_account_id --profile artifacts 2>/dev/null || echo "Not authenticated")" && aws sts get-caller-identity --profile artifacts >/dev/null 2>&1 && echo "AWS authenticated" || (echo "AWS not authenticated - run: aws sso login --profile artifacts" && exit 1) && uv run /Users/liebl/Documents/tools/skopy/skopy'
 #alias slurp="$HOME/Documents/docs/slurp.sh"
-alias ca-auth="$HOME/.config/codeartifact-auth-manager/manager.py refresh && source $HOME/.config/codeartifact-auth-manager/env.sh"
+alias ca-auth="$HOME/.config/codeartifact-auth-manager/manager.py refresh"
 alias ca-status="$HOME/.config/codeartifact-auth-manager/manager.py status"
 
 # =============================================================================
