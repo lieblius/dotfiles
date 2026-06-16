@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -256,56 +257,90 @@ def ensure_static_configs(cfg):
 # Authentication
 # ---------------------------------------------------------------------------
 
-def get_token(cfg):
-    """Fetch a CodeArtifact token using the existing SSO session. Never opens a
-    browser. Returns (token, expiration_iso) or (None, None) if the SSO session
-    has expired (the AWS CLI silently refreshes via the refresh token otherwise)."""
-    result = subprocess.run(
-        [
-            "aws", "codeartifact", "get-authorization-token",
-            "--domain", cfg["domain"],
-            "--domain-owner", cfg["domain_owner"],
-            "--region", cfg["region"],
-            "--output", "json",
-        ],
-        env={
-            "AWS_PROFILE": cfg["artifacts_profile"],
-            "PATH": os.environ["PATH"],
-            "HOME": os.environ["HOME"],
-        },
-        capture_output=True,
-        text=True,
+def _classify_aws_error(stderr):
+    """Classify an aws CLI failure. 'sso_expired' means the SSO session/token is gone
+    and a login is required. 'transient' means a network/throttling/other failure
+    where the existing token may still be valid, so we should retry rather than treat
+    it as expired. Only a confident SSO match returns 'sso_expired'."""
+    s = (stderr or "").lower()
+    sso_markers = (
+        "error loading sso token",
+        "the sso session",
+        "sso session associated with this profile has expired",
+        "does not exist",
+        "run aws sso login",
+        "expired or is otherwise invalid",
+        "token has expired",
     )
+    if any(m in s for m in sso_markers):
+        return "sso_expired"
+    return "transient"
 
-    if result.returncode != 0 or not result.stdout.strip():
+
+def get_token(cfg, retries=3):
+    """Fetch a CodeArtifact token using the existing SSO session. Never opens a
+    browser. Returns (token, expiration_iso, status):
+      'ok'          - token fetched
+      'sso_expired' - SSO session is gone; a login is required
+      'transient'   - network/other failure; the existing token may still be valid,
+                      so retry later (caller must not change state or notify)
+    The AWS CLI silently refreshes the SSO access token via the refresh token, so an
+    alive session needs no browser. Transient failures are retried with backoff."""
+    last = "transient"
+    for attempt in range(retries):
+        result = subprocess.run(
+            [
+                "aws", "codeartifact", "get-authorization-token",
+                "--domain", cfg["domain"],
+                "--domain-owner", cfg["domain_owner"],
+                "--region", cfg["region"],
+                "--output", "json",
+            ],
+            env={
+                "AWS_PROFILE": cfg["artifacts_profile"],
+                "PATH": os.environ["PATH"],
+                "HOME": os.environ["HOME"],
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0 and result.stdout.strip():
+            try:
+                data = json.loads(result.stdout)
+            except json.JSONDecodeError:
+                print("[ERROR] Could not parse get-authorization-token output",
+                      file=sys.stderr)
+                return None, None, "transient"
+            token = data.get("authorizationToken")
+            if not token:
+                return None, None, "transient"
+            exp = data.get("expiration")
+            if isinstance(exp, (int, float)):
+                exp = datetime.fromtimestamp(exp, timezone.utc).isoformat()
+            return token, exp, "ok"
+
+        last = _classify_aws_error(result.stderr)
+        if last == "sso_expired":
+            print(f"[INFO] SSO session expired: {result.stderr.strip()}", file=sys.stderr)
+            return None, None, "sso_expired"
         print(
-            f"[INFO] Browser-free refresh unavailable (SSO session likely expired): "
+            f"[WARN] Token fetch failed (transient, attempt {attempt + 1}/{retries}): "
             f"{result.stderr.strip()}",
             file=sys.stderr,
         )
-        return None, None
+        if attempt < retries - 1:
+            time.sleep(2 * (attempt + 1))
 
-    try:
-        data = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        print("[ERROR] Could not parse get-authorization-token output", file=sys.stderr)
-        return None, None
-
-    token = data.get("authorizationToken")
-    if not token:
-        return None, None
-
-    exp = data.get("expiration")
-    if isinstance(exp, (int, float)):
-        exp = datetime.fromtimestamp(exp, timezone.utc).isoformat()
-    return token, exp
+    return None, None, last
 
 
 def refresh_codeartifact(cfg):
-    """Browser-free refresh: fetch one token and write it into every tool's files."""
-    token, expiration = get_token(cfg)
-    if not token:
-        return False
+    """Browser-free refresh: fetch one token and write it into every tool's files.
+    Returns 'ok', 'sso_expired', or 'transient'."""
+    token, expiration, status = get_token(cfg)
+    if status != "ok" or not token:
+        return status
 
     ensure_static_configs(cfg)
     _update_netrc(cfg["host"], "aws", token)
@@ -317,7 +352,7 @@ def refresh_codeartifact(cfg):
         0o600,
     )
     save_state(authenticated=True, expires_at=expiration)
-    return True
+    return "ok"
 
 
 def notify(title, message, action=None):
@@ -379,11 +414,20 @@ def authenticate(interactive=False):
     """
     try:
         cfg = load_config()
+        result = refresh_codeartifact(cfg)
 
-        if refresh_codeartifact(cfg):
+        if result == "ok":
             print("[SUCCESS] CodeArtifact refreshed without a browser")
             return True
 
+        if result == "transient":
+            # Network/throttling: the existing token may still be valid. Leave the
+            # state and files untouched and let the next run retry. Never notify.
+            print("[WARN] Could not reach CodeArtifact (transient); "
+                  "leaving current state, will retry next run.", file=sys.stderr)
+            return False
+
+        # result == "sso_expired"
         if not interactive:
             print("[INFO] SSO session expired; notifying (no browser opened).")
             save_state(authenticated=False)
@@ -396,7 +440,7 @@ def authenticate(interactive=False):
             save_state(authenticated=False)
             return False
 
-        if refresh_codeartifact(cfg):
+        if refresh_codeartifact(cfg) == "ok":
             print("[SUCCESS] CodeArtifact authentication complete")
             return True
 
@@ -432,7 +476,7 @@ def check_and_refresh():
         return True
 
     print("[INFO] Token expired; attempting browser-free refresh...")
-    return refresh_codeartifact(load_config())
+    return refresh_codeartifact(load_config()) == "ok"
 
 
 def main():

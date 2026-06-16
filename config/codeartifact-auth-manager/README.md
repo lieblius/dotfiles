@@ -6,7 +6,7 @@ Sketchybar indicator.
 ## Features
 
 - No browser opening on shell startup
-- Scheduled refresh at 09:00 and 21:00 via launchd, browser-free in the common case
+- Scheduled refresh every 3 hours via launchd, browser-free in the common case
 - A browser is never opened automatically. When the underlying SSO session expires
   (~weekly), the scheduled job posts a notification and empties the menu bar item;
   you sign in on your own terms, so your focus is never stolen
@@ -60,7 +60,7 @@ change. This also covers GUI apps (e.g. PyCharm) that never source your shell.
 2. **config.json** - Deployment-specific identifiers (account id, domain, region). Local only, gitignored. Copy from `config.example.json`.
 3. **state.json** - Stores authentication state and the real token expiry. Local only, gitignored.
 4. **Sketchybar plugins** - Display auth status and handle clicks
-5. **com.liebl.codeartifact-refresh.plist** - launchd agent that runs `manager.py auto` at 09:00 and 21:00
+5. **com.liebl.codeartifact-refresh.plist** - launchd agent that runs `manager.py auto` every 3 hours
 
 ### Commands
 
@@ -127,8 +127,11 @@ nothing to re-source afterwards; tools pick up the new token on their next run.
 
 ### Scheduled Refresh (launchd)
 
-The `com.liebl.codeartifact-refresh` agent runs `manager.py auto` at 09:00 and
-21:00 daily (a run missed while the machine is asleep fires on wake). It refreshes
+The `com.liebl.codeartifact-refresh` agent runs `manager.py auto` every 3 hours
+(plus on load, and a run missed while the machine is asleep fires on wake). The
+token lasts 12h, so a single failed run is retried well before it can lapse. A
+transient failure (network/throttling) is retried with backoff and never changes
+state or notifies; only a genuine SSO-session expiry does. It refreshes
 the token using the existing SSO session, with no browser. It never opens a browser
 on its own: if the SSO session itself has expired, it posts a macOS notification and
 leaves the Sketchybar checkbox empty, and you sign in when you choose (click the
@@ -177,7 +180,7 @@ to ensure the files are fresh.
 ## How It Works
 
 1. Sketchybar polls every 60s -> reads `state.json` to check expiry
-2. launchd runs `manager.py auto` at 09:00 and 21:00 -> fetches one CodeArtifact
+2. launchd runs `manager.py auto` every 3 hours -> fetches one CodeArtifact
    token from the existing SSO session (no browser) and writes it into `~/.netrc`
    and `~/.cargo/credentials.toml`
 3. If the SSO session has expired -> `auto` posts a notification, leaves the state

@@ -24,21 +24,24 @@
         <string>/opt/homebrew/bin:/Users/liebl/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin</string>
     </dict>
 
-    <!-- 09:00 and 21:00 daily. A run missed while asleep fires on wake. -->
+    <!-- Every 3 hours. The token lasts 12h, so a single failed run (e.g. a network
+         blip) is retried well before the token can lapse. A run missed while asleep
+         fires on wake. -->
     <key>StartCalendarInterval</key>
     <array>
-        <dict>
-            <key>Hour</key><integer>9</integer>
-            <key>Minute</key><integer>0</integer>
-        </dict>
-        <dict>
-            <key>Hour</key><integer>21</integer>
-            <key>Minute</key><integer>0</integer>
-        </dict>
+        <dict><key>Hour</key><integer>0</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>3</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>12</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>18</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Hour</key><integer>21</integer><key>Minute</key><integer>0</integer></dict>
     </array>
 
+    <!-- Refresh on (re)load too, so login/wake catches up immediately. -->
     <key>RunAtLoad</key>
-    <false/>
+    <true/>
 
     <key>StandardOutPath</key>
     <string>/tmp/com.liebl.codeartifact-refresh.stdout.log</string>
