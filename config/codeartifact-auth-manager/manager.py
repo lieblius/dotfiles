@@ -229,10 +229,13 @@ def ensure_static_configs(cfg):
         f"extra-index-url = https://pypi.org/simple\n",
         0o644,
     )
+    # No PyPI extra-index for uv: in uv an extra-index-url outranks index-url, so
+    # adding PyPI would make uv resolve public packages straight from PyPI on every
+    # re-lock (rewriting uv.lock to pythonhosted URLs and bypassing CodeArtifact).
+    # CodeArtifact already proxies PyPI upstream, so the single index covers everything.
     _atomic_write(
         UV_CONFIG,
-        f'index-url = "{cfg["pip_index"]}"\n'
-        f'extra-index-url = ["https://pypi.org/simple"]\n',
+        f'index-url = "{cfg["pip_index"]}"\n',
         0o644,
     )
     _upsert_field(
