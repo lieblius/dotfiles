@@ -19,7 +19,7 @@ config.enable_kitty_graphics = true
 -- Appearance
 config.color_scheme = "tokyonight"
 config.font = wezterm.font("JetBrains Mono")
-config.font_size = os.getenv("WEZTERM_ORACLE") == "1" and 13 or 20
+config.font_size = 20
 config.window_decorations = "RESIZE"
 config.window_background_opacity = 0.99
 
@@ -30,7 +30,7 @@ config.notification_handling = "SuppressFromFocusedPane"
 config.quick_select_patterns = {
 	"git push --set-upstream origin .*",
 	'claude --resume [0-9a-f-]+',
-	'claude --resume "[%w_-]+"',
+	'claude --resume "[^"]+"',
 	"/[a-zA-Z][a-zA-Z0-9_:-]+ \\S+",
 }
 
@@ -213,21 +213,6 @@ config.key_tables = {
 		{ key = "Enter", action = "PopKeyTable" }, -- Exit key table
 	},
 }
-
--- =============================================================================
--- Oracle Panel Support
--- =============================================================================
--- When launched with WEZTERM_ORACLE=1, sizes the window for the left gutter.
--- Normal launches pass through unchanged.
-
-wezterm.on("gui-startup", function(cmd)
-	local mux = wezterm.mux
-	local tab, pane, window = mux.spawn_window(cmd or {})
-	if os.getenv("WEZTERM_ORACLE") == "1" then
-		window:gui_window():set_inner_size(440, 1100)
-		window:gui_window():set_position(0, 30)
-	end
-end)
 
 -- =============================================================================
 -- Event Handlers

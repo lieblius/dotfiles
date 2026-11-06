@@ -1,0 +1,35 @@
+WEZTERM CHEATSHEET  (open with Ctrl-a ?)
+
+Leader key: Ctrl-a  (1s timeout)
+
+Panes:
+  Cmd-h/j/k/l        : Move to pane left/down/up/right (Cmd-g also moves left)
+  Cmd-Shift-h/j/k/l  : Split current pane toward left/down/up/right
+  Cmd-Ctrl-h/j/k/l   : Split the whole tab toward left/down/up/right
+  Cmd-;              : Toggle pane zoom
+  Cmd-w              : Close pane (no confirm)
+  Ctrl-a x           : Close pane (confirm)
+  Ctrl-a r           : Resize mode: < - + >  (Esc/Enter to exit)
+  Ctrl-a Shift-!     : Move pane to a new tab
+
+Tabs:
+  Ctrl-a c           : New tab
+  Ctrl-a n / p       : Next / previous tab
+  Ctrl-a 1-9         : Go to tab by number
+  Ctrl-a ,           : Rename tab
+  Ctrl-a w           : Tab navigator
+  Ctrl-a .           : Move-tab mode: h/j left, k/l right  (Esc/Enter to exit)
+
+Workspaces and sessions:
+  Ctrl-a s           : Fuzzy switch workspace
+  Cmd-s              : Save workspace (resurrect.wezterm; also autosaves every 5 min)
+  Cmd-r              : Fuzzy restore a saved workspace or window
+  Ctrl-a d           : Detach domain
+
+Other:
+  Ctrl-a a           : Send literal Ctrl-a
+  Ctrl-a [           : Copy mode
+  Ctrl-a :           : Command palette
+  Ctrl-a Shift-R     : Reload config
+  Shift-Enter        : Send ESC+Enter (newline in Claude Code and similar TUIs)
+  Ctrl-Shift-Space   : Quick select (includes `claude --resume ...` and slash commands)
