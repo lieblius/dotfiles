@@ -176,7 +176,12 @@ config.keys = {
 		mods = "LEADER",
 		action = act.SplitVertical({
 			domain = "CurrentPaneDomain",
-			args = { "nvim", wezterm.config_dir .. "/wezterm-multiplexing.txt" },
+			-- Login shell so Homebrew's PATH (nvim) is available when WezTerm is launched from the Dock
+			args = {
+				os.getenv("SHELL") or "/bin/zsh",
+				"-lc",
+				"exec ${EDITOR:-nvim} -R ~/.config/wezterm/wezterm-multiplexing.txt",
+			},
 		}),
 	},
 }
